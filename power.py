@@ -17,7 +17,6 @@ from torch_geometric.utils import to_networkx, homophily
 import time
 from scipy.sparse.linalg import eigsh, eigs
 import pandas as pd
-import seaborn as sns
 import copy
 import argparse
 
@@ -335,6 +334,7 @@ def run_spectral(data, A, Xouter, k=10, lr=1e-2, n_layer=2, dropout=0.5, device=
   return np.array(acc_X), np.array(acc_ASE), np.array(acc_X_ASE), feat_X
 
 
+
 def run_data(data, self_loops=False, undirected=True, k=10, num_hops=10, eval_every=1,
              upper_tri=False, rw=True, kc=None, individual=False, power_only=False, device='cuda:0'):
   '''
@@ -378,19 +378,49 @@ def run_data(data, self_loops=False, undirected=True, k=10, num_hops=10, eval_ev
   #Different power iterations
   Powers_A_norm = power_iterate(A_tensor, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
   Powers_Lap_norm = power_iterate(Atilde, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+  Powers_Lap_normi = power_iterate(torch.linalg.pinv(Atilde), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+  Powers_Lap_normi_peps = power_iterate(torch.linalg.inv(Atilde+0.0001*torch.eye(Atilde.shape(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+  Powers_Lap_normi_p1 = power_iterate(torch.linalg.inv(Atilde+1*torch.eye(Atilde.shape(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+  Powers_Lap_normi_p2 = power_iterate(torch.linalg.inv(Atilde+2*torch.eye(Atilde.shape(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+  
+  Powers_Lap_norm_meps = power_iterate(torch.linalg(Atilde-0.0001*torch.eye(Atilde.shape(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+  Powers_Lap_norm_m1 = power_iterate(torch.linalg(Atilde-1*torch.eye(Atilde.shape(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+  Powers_Lap_norm_m2 = power_iterate(torch.linalg(Atilde-2*torch.eye(Atilde.shape(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+  
   Powers_RW_norm = power_iterate(A_tensor, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri, rw=True)
+  assert not power_only
   if power_only == False:
     Powers_A =  power_iterate(A_tensor, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri, normalize=False)
     Powers_Lap = power_iterate(Atilde, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri, normalize=False) #SGC
+    Powers_Lapi = power_iterate(torch.linalg.pinv(Atilde), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri, normalize=False) #
     Powers_RW = power_iterate(A_tensor, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri, rw=True, normalize=False) #SIGN
 
   #run all
   if power_only:
-    names = ['A_norm', 'Lap_norm', 'RW_norm']
-    list_powers = [Powers_A_norm, Powers_Lap_norm, Powers_RW_norm]
+    names = ['A_norm', 'Lap_norm','Lap_normi', 'RW_norm']
+    list_powers = [Powers_A_norm, Powers_Lap_norm, Powers_Lap_normi, Powers_RW_norm]
   else:
-    names = ['A_norm', 'A', 'Lap_norm', 'Lap', 'RW_norm', 'RW']
-    list_powers = [Powers_A_norm, Powers_A, Powers_Lap_norm, Powers_Lap, Powers_RW_norm, Powers_RW]
+    # names = ['A_norm', 'A', 'Lap_norm', 'Lap_normi', 'Lap', 'Lapi', 'RW_norm', 'RW']
+    # list_powers = [Powers_A_norm, Powers_A, Powers_Lap_norm,Powers_Lap_normi, Powers_Lap,Powers_Lapi, Powers_RW_norm, Powers_RW]
+    names = [
+       'Lap_normi',
+       'Lap_normi_peps', 
+       'Lap_normi_p1', 
+       'Lap_normi_p2',
+       'Lap_norm_meps',
+       'Lap_norm_m1',
+       'Lap_norm_m2',
+    ]
+    list_powers = [
+       Powers_Lap_normi,
+       Powers_Lap_normi_peps,
+       Powers_Lap_normi_p1,
+       Powers_Lap_normi_p2,
+       Powers_Lap_norm_meps,
+       Powers_Lap_norm_m1,
+       Powers_Lap_norm_m2,
+    ]
+
   for name, Powers in zip(names, list_powers):
     print(f"running {name}")
     results[name] = run_exp(Powers, data, K=num_hops+1, all_iter='all', individual=individual, eval_every=eval_every, device=device)
