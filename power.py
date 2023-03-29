@@ -379,13 +379,13 @@ def run_data(data, self_loops=False, undirected=True, k=10, num_hops=10, eval_ev
   Powers_A_norm = power_iterate(A_tensor, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
   Powers_Lap_norm = power_iterate(Atilde, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
   Powers_Lap_normi = power_iterate(torch.linalg.pinv(Atilde), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
-  Powers_Lap_normi_peps = power_iterate(torch.linalg.inv(Atilde+0.0001*torch.eye(Atilde.Size(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
-  Powers_Lap_normi_p1 = power_iterate(torch.linalg.inv(Atilde+1*torch.eye(Atilde.Size(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
-  Powers_Lap_normi_p2 = power_iterate(torch.linalg.inv(Atilde+2*torch.eye(Atilde.Size(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+  Powers_Lap_normi_peps = power_iterate(torch.linalg.inv(Atilde+0.0001*torch.eye(Atilde.size(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+  Powers_Lap_normi_p1 = power_iterate(torch.linalg.inv(Atilde+1*torch.eye(Atilde.size(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+  Powers_Lap_normi_p2 = power_iterate(torch.linalg.inv(Atilde+2*torch.eye(Atilde.size(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
   
-  Powers_Lap_norm_meps = power_iterate(torch.linalg(Atilde-0.0001*torch.eye(Atilde.Size(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
-  Powers_Lap_norm_m1 = power_iterate(torch.linalg(Atilde-1*torch.eye(Atilde.Size(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
-  Powers_Lap_norm_m2 = power_iterate(torch.linalg(Atilde-2*torch.eye(Atilde.Size(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+  Powers_Lap_norm_meps = power_iterate(torch.linalg(Atilde-0.0001*torch.eye(Atilde.size(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+  Powers_Lap_norm_m1 = power_iterate(torch.linalg(Atilde-1*torch.eye(Atilde.size(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+  Powers_Lap_norm_m2 = power_iterate(torch.linalg(Atilde-2*torch.eye(Atilde.size(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
   
   Powers_RW_norm = power_iterate(A_tensor, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri, rw=True)
   assert not power_only
