@@ -384,13 +384,14 @@ def run_data(data, self_loops=False, undirected=True, k=10, num_hops=10, eval_ev
     Powers_Lap = power_iterate(Atilde, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri, normalize=False) #SGC
     Powers_RW = power_iterate(A_tensor, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri, rw=True, normalize=False) #SIGN
 
+  assert not power_only
   #run all
   if power_only:
     names = ['A_norm', 'Lap_norm', 'RW_norm']
     list_powers = [Powers_A_norm, Powers_Lap_norm, Powers_RW_norm]
   else:
-    names = ['A_norm', 'A', 'Lap_norm', 'Lap', 'RW_norm', 'RW']
-    list_powers = [Powers_A_norm, Powers_A, Powers_Lap_norm, Powers_Lap, Powers_RW_norm, Powers_RW]
+    names = ['A_norm', 'A', 'Lap_norm', 'Lap', 'RW_norm', 'RW'][:2]
+    list_powers = [Powers_A_norm, Powers_A, Powers_Lap_norm, Powers_Lap, Powers_RW_norm, Powers_RW][:2]
   for name, Powers in zip(names, list_powers):
     print(f"running {name}")
     results[name] = run_exp(Powers, data, K=num_hops+1, all_iter='all', individual=individual, eval_every=eval_every, device=device)
