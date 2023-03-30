@@ -16,6 +16,7 @@ from torch_geometric.datasets import WebKB, WikipediaNetwork, Planetoid, Amazon,
 from torch_geometric.utils import to_networkx, homophily
 import time
 from scipy.sparse.linalg import eigsh, eigs
+from scipy.sparse.linalg import inv as inv_sparse
 import pandas as pd
 import seaborn as sns
 import copy
@@ -379,6 +380,18 @@ def run_data(data, self_loops=False, undirected=True, k=10, num_hops=10, eval_ev
   Powers_A_norm = power_iterate(A_tensor, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
   Powers_Lap_norm = power_iterate(Atilde, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
   Powers_RW_norm = power_iterate(A_tensor, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri, rw=True)
+
+
+  Powers_A_normi = power_iterate(torch.linalg.pinv(A_tensor), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+  Powers_A_normi_peps = power_iterate(torch.linalg.inv(A_tensor+0.0001*torch.eye(A_tensor.size(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+  Powers_A_normi_p1 = power_iterate(torch.linalg.inv(A_tensor+1*torch.eye(A_tensor.size(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+  Powers_A_normi_p2 = power_iterate(torch.linalg.inv(A_tensor+2*torch.eye(A_tensor.size(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+
+  Powers_A_norm_meps = power_iterate((A_tensor-0.0001*torch.eye(A_tensor.size(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+  Powers_A_norm_m1 = power_iterate((A_tensor-1*torch.eye(A_tensor.size(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+  Powers_A_norm_m2 = power_iterate((A_tensor-2*torch.eye(A_tensor.size(0))), torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
+
+
   if power_only == False:
     Powers_A =  power_iterate(A_tensor, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri, normalize=False)
     Powers_Lap = power_iterate(Atilde, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri, normalize=False) #SGC
@@ -390,8 +403,27 @@ def run_data(data, self_loops=False, undirected=True, k=10, num_hops=10, eval_ev
     names = ['A_norm', 'Lap_norm', 'RW_norm']
     list_powers = [Powers_A_norm, Powers_Lap_norm, Powers_RW_norm]
   else:
-    names = ['A_norm', 'A', 'Lap_norm', 'Lap', 'RW_norm', 'RW'][:2]
-    list_powers = [Powers_A_norm, Powers_A, Powers_Lap_norm, Powers_Lap, Powers_RW_norm, Powers_RW][:2]
+    names = [
+        'A_norm',
+        'A_normi',
+        'A_normi_peps',
+        'A_normi_p1',
+        'A_normi_p2',
+        'A_norm_meps',
+        'A_norm_m1',
+        'A_norm_m2',
+       ]
+    list_powers = [
+      Powers_A_norm,
+      Powers_A_normi,
+      Powers_A_normi_peps,
+      Powers_A_normi_p1,
+      Powers_A_normi_p2,
+      Powers_A_norm_meps,
+      Powers_A_norm_m1,
+      Powers_A_norm_m2,
+    ]
+
   for name, Powers in zip(names, list_powers):
     print(f"running {name}")
     results[name] = run_exp(Powers, data, K=num_hops+1, all_iter='all', individual=individual, eval_every=eval_every, device=device)
