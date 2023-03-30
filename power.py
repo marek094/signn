@@ -18,7 +18,6 @@ import time
 from scipy.sparse.linalg import eigsh, eigs
 from scipy.sparse.linalg import inv as inv_sparse
 import pandas as pd
-import seaborn as sns
 import copy
 import argparse
 
