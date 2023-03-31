@@ -377,13 +377,13 @@ def run_data(data, self_loops=False, undirected=True, k=10, num_hops=10, eval_ev
   norm = torch.pow(degs, -0.5)
   Atilde = torch.diag(norm) @ A_tensor @ torch.diag(norm) #[BUG: sparse matrix mult faster]
   #Different power iterations
-  Powers_A_norm = power_iterate(A_tensor, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
-  Powers_Lap_norm = power_iterate(Atilde, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri)
-  Powers_RW_norm = power_iterate(A_tensor, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri, rw=True)
+  Powers_A_norm = power_iterate(A_tensor, torch.FloatTensor(Xouter), K=num_hops, upper_tri=upper_tri)
+  Powers_Lap_norm = power_iterate(Atilde, torch.FloatTensor(Xouter), K=num_hops, upper_tri=upper_tri)
+  Powers_RW_norm = power_iterate(A_tensor, torch.FloatTensor(Xouter), K=num_hops, upper_tri=upper_tri, rw=True)
   if power_only == False:
-    Powers_A =  power_iterate(A_tensor, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri, normalize=False)
-    Powers_Lap = power_iterate(Atilde, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri, normalize=False) #SGC
-    Powers_RW = power_iterate(A_tensor, torch.FloatTensor(feat_X), K=num_hops, upper_tri=upper_tri, rw=True, normalize=False) #SIGN
+    Powers_A =  power_iterate(A_tensor, torch.FloatTensor(Xouter), K=num_hops, upper_tri=upper_tri, normalize=False)
+    Powers_Lap = power_iterate(Atilde, torch.FloatTensor(Xouter), K=num_hops, upper_tri=upper_tri, normalize=False) #SGC
+    Powers_RW = power_iterate(A_tensor, torch.FloatTensor(Xouter), K=num_hops, upper_tri=upper_tri, rw=True, normalize=False) #SIGN
 
   #run all
   if power_only:
