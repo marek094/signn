@@ -374,6 +374,8 @@ def run_data(data, self_loops=False, undirected=True, k=10, num_hops=10, eval_ev
     evaluesX, evectorsX = eigsh(Xouter, k=k)
     feat_X = torch.FloatTensor(evectorsX[:, :k])
 
+  Xouter = torch.FloatTensor(Xouter)
+
   results, results_last, results_fl = {}, {}, {}
   degs = A_tensor.sum(axis=0).clamp(min=1)
   norm = torch.pow(degs, -0.5)
