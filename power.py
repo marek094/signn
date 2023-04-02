@@ -365,12 +365,14 @@ def run_data(data, self_loops=False, undirected=True, k=10, num_hops=10, eval_ev
   print(f'A: {A.shape}, Cov(X): {Xouter.shape}')
   if power_only == False:
     #spectral methods
-    acc_X, acc_ASE, acc_X_ASE, feat_X = run_spectral(data, A, Xouter, k=k, device=device)
-    results_spectral = {'Cov(X)': acc_X, 'ASE': acc_ASE, 'Cov(X)_ASE': acc_X_ASE}
+    # acc_X, acc_ASE, acc_X_ASE, feat_X = run_spectral(data, A, Xouter, k=k, device=device)
+    # results_spectral = {'Cov(X)': acc_X, 'ASE': acc_ASE, 'Cov(X)_ASE': acc_X_ASE}
+    results_spectral = {}
   else: 
     evaluesX, evectorsX = eigsh(Xouter, k=k)
     feat_X = torch.FloatTensor(evectorsX[:, :k])
 
+  feat_X = data.x
   results, results_last, results_fl = {}, {}, {}
   degs = A_tensor.sum(axis=0).clamp(min=1)
   norm = torch.pow(degs, -0.5)
